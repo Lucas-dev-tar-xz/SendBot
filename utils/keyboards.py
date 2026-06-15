@@ -72,3 +72,7 @@ def main_menu() -> InlineKeyboardMarkup:
     markup.row(ib(text='Верификация', callback_data='verification', style=danger))
 
     return markup.as_markup()
+
+
+def manage_addresses():
+    pass
