@@ -1,0 +1,4 @@
+.env
+LICENSE
+database/db.sqlite
+__paycache__

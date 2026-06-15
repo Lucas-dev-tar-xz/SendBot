@@ -1,0 +1,20 @@
+        text0 = (f"<tg-emoji emoji-id='5195322003225057603'>😀</tg-emoji> Верификация: {verification}\n\n"
+                f"Сумма: <code>{amount0}</code> TON\n\n"
+                 f"<tg-emoji emoji-id={EXCLAMATION_MARK}>❗️</tg-emoji>ID платежа: <code>{uid0}</code>\n"
+                 f"Просьба указать ID Платежа в комментарии платежа (автоматически через кнопки ниже)\n\n"
+                 f"<b>Мои адреса:\n\n</b>"
+                 f"{norm_addresses}\n\n"
+                 f"Также можете отправить деньги быстро через кнопку ниже:")
+
+
+        text2 = (f"<tg-emoji emoji-id='5195322003225057603'>😀</tg-emoji> Верификация: {verification}\n\n"
+                f"Сумма: <code>{amount2}</code> TON\n\n"
+                 f"{EXCLAMATION_MARK}ID платежа: <code>{uid2}</code>\n"
+                 f"Просьба указать ID Платежа в комментарии платежа (автоматически через кнопки ниже)\n\n"
+                 f"<b>Мои адреса:\n\n</b>"
+                 f"{norm_addresses}\n\n"
+                 f"Также можете отправить быстро через кнопку ниже:")
+
+
+
+<a href='https://tonscan.org/tx/{transaction["in_msg"]["hash"]}'>получено</a>
