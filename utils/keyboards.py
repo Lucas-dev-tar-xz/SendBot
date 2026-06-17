@@ -42,7 +42,8 @@ DEV = InlineKeyboardMarkup(inline_keyboard=[[ib(text='Dev', url="https://t.me/Th
 
 
 def inline_query(address: str, uid: str = None, amount: float = None, jetton: str = None) -> InlineKeyboardMarkup:
-    amount = int(amount*1_000_000_000)
+    if amount:
+        amount = int(amount*1_000_000_000)
 
     markup = InlineKeyboardBuilder()
     markup.row(ib(text='Tonkeeper', url=f"https://app.tonkeeper.com/transfer/{address}?{f'amount={amount}' if amount else ''}{f'&text={uid}' if uid else ''}{f'&jetton={jetton}' if jetton else ''}", emoji_id=TONKEEPER, style=primary), ib(text='MyTonWallet', url=f"https://my.tt/transfer/{address}?{f'amount={amount}' if amount else ''}{f'&text={uid}' if uid else ''}{f'&jetton={jetton}' if jetton else ''}", emoji_id=MYTONWALLET, style=primary))
