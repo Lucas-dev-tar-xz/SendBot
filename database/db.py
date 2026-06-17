@@ -14,6 +14,7 @@ class Database:
             self.cursor.execute("""CREATE TABLE IF NOT EXISTS users (
             id INTEGER NOT NULL,
             premium INTEGER NOT NULL DEFAULT 0,
+            reviews TEXT DEFAULT 'https://telegram.org',
             verification TEXT NOT NULL DEFAULT '<tg-emoji emoji-id="5206607081334906820">✅</tg-emoji>'
             )""")
             self.cursor.execute("""CREATE TABLE IF NOT EXISTS addresses (
@@ -95,6 +96,14 @@ class Database:
             raw = self.cursor.fetchall()
             if raw: return raw
             else: return False
+
+
+    def get_user_reviews(self, user_id: int):
+        with self.connection:
+            self.cursor.execute("""SELECT reviews FROM users WHERE id = ?""", (user_id,))
+            raw = self.cursor.fetchone()
+            if raw: return raw[0]
+            else: return None
 
 
 

@@ -127,34 +127,117 @@ async def inline_query(query: InlineQuery):
 
         await query.answer(results=[result0, result2], cache_time=0, is_personal=True)
 
+    else:
+        reviews = mdb.get_user_reviews(user_id=query.from_user.id)
+
+        if not query.query:
+            uid1 = "without_" + generate_uid()
+            kb1 = kb.optimize("1")
+
+            result1 = InlineQueryResultArticle(
+                id=uid1,
+                title="Отправить адрес",
+                description=f"Все адреса TON",
+                input_message_content=InputTextMessageContent(
+                    message_text="Создаю...",
+                    parse_mode='HTML'
+                ),
+                reply_markup=kb1
+            )
+
+            if reviews:
+                kb2 = kb.deal_end(reviews)
+                result2 = InlineQueryResultArticle(
+                    id="None",
+                    title="Сделка завершена",
+                    description=f"Сделка завершена",
+                    input_message_content=InputTextMessageContent(
+                        message_text="Сделка завершена!\nСпасибо за сделку, можете оставить отзыв по кнопке снизу",
+                        parse_mode='HTML'
+                    ),
+                    reply_markup=kb2
+                )
+            else:
+                result2 = InlineQueryResultArticle(
+                    id="None",
+                    title="Отзывы не найдены",
+                    description=f"Чат отзывов не настроен",
+                    input_message_content=InputTextMessageContent(
+                        message_text="<b>Пожалуйста, попросите настроить чат отзывов</b>",
+                        parse_mode='HTML'
+                    ),
+                    reply_markup=kb.DEV
+                )
+
+
+            await query.answer(results=[result1, result2], cache_time=0, is_personal=True)
+
+        else:
+            if reviews:
+                kb2 = kb.deal_end(reviews)
+                result = InlineQueryResultArticle(
+                    id="None",
+                    title=f"Сделка завершена с {query.query}",
+                    description=f"Сделка завершена с {query.query}",
+                    input_message_content=InputTextMessageContent(
+                        message_text=f"Сделка завершена!\nСпасибо за сделку, можете оставить отзыв по кнопке снизу\n\n{query.query}",
+                        parse_mode='HTML'
+                    ),
+                    reply_markup=kb2
+                )
+            else:
+                result = InlineQueryResultArticle(
+                    id="None",
+                    title="Отзывы не найдены",
+                    description=f"Чат отзывов не настроен",
+                    input_message_content=InputTextMessageContent(
+                        message_text="<b>Пожалуйста, попросите настроить чат отзывов</b>",
+                        parse_mode='HTML'
+                    ),
+                    reply_markup=kb.DEV
+                )
+
+            await query.answer(results=[result], cache_time=0, is_personal=True)
 
 
 @router.chosen_inline_result()
 async def chosen_inline_result(result: ChosenInlineResult, bot: Bot):
-    if not result.result_id.startswith("num_"):
-        return
+    if result.result_id.startswith("num_"):
+        uid = result.result_id.split("_")[1]
 
-    uid = result.result_id.split("_")[1]
+        verification = mdb.get_user_verification(user_id=result.from_user.id)
+        addresses = mdb.get_user_addresses(user_id=result.from_user.id)
+        norm_addresses = normalize_addresses(addresses=addresses)
 
-    verification = mdb.get_user_verification(user_id=result.from_user.id)
-    addresses = mdb.get_user_addresses(user_id=result.from_user.id)
-    norm_addresses = normalize_addresses(addresses=addresses)
+        last_time = await get_last_lime(address=addresses[0])
 
-    last_time = await get_last_lime(address=addresses[0])
+        text = (f"<tg-emoji emoji-id='5195322003225057603'>😀</tg-emoji> Верификация: {verification}\n\n"
+                 f"Сумма: <code>{float(result.query)}</code> TON\n\n"
+                 f"<tg-emoji emoji-id={EXCLAMATION_MARK}>❗️</tg-emoji>ID платежа: <code>{uid}</code>\n"
+                 f"Просьба указать ID Платежа в комментарии платежа (автоматически через кнопки ниже)\n\n"
+                f"<b>Мои адреса:\n\n</b>"
+                f"{norm_addresses}\n\n"
+                f"Также можете отправить деньги быстро через кнопку ниже:")
 
-    text = (f"<tg-emoji emoji-id='5195322003225057603'>😀</tg-emoji> Верификация: {verification}\n\n"
-             f"Сумма: <code>{float(result.query)}</code> TON\n\n"
-             f"<tg-emoji emoji-id={EXCLAMATION_MARK}>❗️</tg-emoji>ID платежа: <code>{uid}</code>\n"
-             f"Просьба указать ID Платежа в комментарии платежа (автоматически через кнопки ниже)\n\n"
-             f"<b>Мои адреса:\n\n</b>"
-             f"{norm_addresses}\n\n"
-             f"Также можете отправить деньги быстро через кнопку ниже:")
+        markup = kb.inline_query(uid=uid, address=addresses[0], amount=float(result.query))
 
-    markup = kb.inline_query(uid=uid, address=addresses[0], amount=float(result.query))
+        await bot.edit_message_text(text=text, inline_message_id=result.inline_message_id, reply_markup=markup)
 
-    await bot.edit_message_text(text=text, inline_message_id=result.inline_message_id, reply_markup=markup)
+        mdb.write_invoice(uid, float(result.query), last_time=last_time, address=addresses[0], username=result.from_user.username)
 
-    mdb.write_invoice(uid, float(result.query), last_time=last_time, address=addresses[0], username=result.from_user.username)
+    elif result.result_id.startswith("without_"):
+        verification = mdb.get_user_verification(user_id=result.from_user.id)
+        addresses = mdb.get_user_addresses(user_id=result.from_user.id)
+        norm_addresses = normalize_addresses(addresses=addresses)
+
+        text = (f"<tg-emoji emoji-id='5195322003225057603'>😀</tg-emoji> Верификация: {verification}\n\n"
+                f"<b>Мои адреса:\n\n</b>"
+                f"{norm_addresses}\n\n"
+                f"Также можете отправить деньги быстро через кнопку ниже:")
+
+        markup = kb.inline_query(address=addresses[0])
+
+        await bot.edit_message_text(text=text, inline_message_id=result.inline_message_id, reply_markup=markup)
 
 
 

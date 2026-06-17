@@ -1,8 +1,6 @@
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.utils.keyboard import InlineKeyboardBuilder
-
-
-
+from pyrogram.filters import inline_keyboard
 
 primary = "primary" # синяя
 success = "success" # зеленая
@@ -40,7 +38,11 @@ def ib(
 
 
 
-def inline_query(uid: str, address: str, amount: float = None, jetton: str = None) -> InlineKeyboardMarkup:
+DEV = InlineKeyboardMarkup(inline_keyboard=[[ib(text='Dev', url="https://t.me/TheAnotherOneUsername", style=success)]])
+
+
+
+def inline_query(address: str, uid: str = None, amount: float = None, jetton: str = None) -> InlineKeyboardMarkup:
     amount = int(amount*1_000_000_000)
 
     markup = InlineKeyboardBuilder()
@@ -76,3 +78,10 @@ def main_menu() -> InlineKeyboardMarkup:
 
 def manage_addresses():
     pass
+
+
+def deal_end(reviews: str):
+    markup = InlineKeyboardBuilder()
+    markup.row(ib(text='Оставить отзыв', url=reviews, style=success))
+
+    return markup.as_markup()
