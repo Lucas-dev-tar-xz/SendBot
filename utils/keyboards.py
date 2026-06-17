@@ -1,6 +1,5 @@
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.utils.keyboard import InlineKeyboardBuilder
-from pyrogram.filters import inline_keyboard
 
 primary = "primary" # синяя
 success = "success" # зеленая

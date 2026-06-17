@@ -287,7 +287,7 @@ async def cmd_start(message: Message, state: FSMContext):
 
     markup = kb.main_menu()
 
-    await message.answer(text="Бот создается...\nDev: @TheAnotherOneUsername", reply_markup=markup)
+    await message.answer(text="Бот создается...", reply_markup=kb.DEV)
 
 
 @router.callback_query(F.data == "manage_addresses")
