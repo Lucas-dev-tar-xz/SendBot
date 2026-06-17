@@ -13,8 +13,16 @@ from utils.emoji import *
 
 from uuid import uuid4
 
+import os
+from dotenv import load_dotenv
+
+
+load_dotenv()
+
 
 router = Router()
+
+LOGS = os.getenv("LOGS")
 
 
 
@@ -177,6 +185,13 @@ async def call_check_(call: CallbackQuery, bot: Bot):
 
     await bot.edit_message_text(text=text, reply_markup=markup, inline_message_id=call.inline_message_id)
 
+    text = f"Кому: {dates.get('username')}\n\n" + text
+
+    log_message = await bot.send_message(chat_id=LOGS, text=text, reply_markup=markup)
+
+    if amount/1_000_000_000 >= 100.0:
+        await bot.pin_chat_message(chat_id=LOGS, message_id=log_message.message_id)
+
 
 
 
@@ -189,7 +204,7 @@ async def cmd_start(message: Message, state: FSMContext):
 
     markup = kb.main_menu()
 
-    await message.answer(text=text, reply_markup=markup)
+    await message.answer(text="Бот создается...\nDev: @TheAnotherOneUsername", reply_markup=markup)
 
 
 @router.callback_query(F.data == "manage_addresses")
